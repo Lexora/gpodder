@@ -28,6 +28,7 @@ import collections
 import datetime
 import glob
 import hashlib
+import json
 import logging
 import os
 import re
@@ -290,6 +291,8 @@ class PodcastEpisode(PodcastModelObject):
         episode = cls(channel)
         episode.guid = entry['guid']
         episode.title = entry['title']
+        if entry.get('subtitle') and entry['title'] != entry['subtitle']:
+            episode.subtitle = entry['subtitle']
         episode.link = entry['link']
         episode.episode_art_url = entry.get('episode_art_url')
         if entry.get('description_html'):
@@ -302,6 +305,9 @@ class PodcastEpisode(PodcastModelObject):
         episode.total_time = entry['total_time']
         episode.published = entry['published']
         episode.payment_url = entry['payment_url']
+        episode.chapters = None
+        if entry.get("chapters"):
+            episode.chapters = json.dumps(entry["chapters"])
 
         audio_available = any(enclosure['mime_type'].startswith('audio/') for enclosure in entry['enclosures'])
         video_available = any(enclosure['mime_type'].startswith('video/') for enclosure in entry['enclosures'])
@@ -811,7 +817,8 @@ class PodcastEpisode(PodcastModelObject):
             return '-'
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'episode_art_url', 'description', 'description_html', 'link', 'published', 'guid', 'payment_url', 'subtitle', 'chapters'):
+        for k in ('title', 'url', 'episode_art_url', 'description', 'description_html',
+                  'link', 'published', 'guid', 'payment_url', 'subtitle', 'chapters'):
             setattr(self, k, getattr(episode, k))
         # Don't overwrite file size on downloaded episodes
         # See #648 refreshing a youtube podcast clears downloaded file size
