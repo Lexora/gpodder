@@ -50,6 +50,8 @@ EpisodeColumns = (
     'last_playback',
     'payment_url',
     'description_html',
+    'chapters',
+    'subtitle',
     'episode_art_url',
 )
 
@@ -116,8 +118,10 @@ UPGRADE_SQL = [
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
 
-        # Version 8: Add episode thumbnail
+        # Version 8: Add episode chapters, subtitle, episode_art_url
         (7, 8, """
+        ALTER TABLE episode ADD COLUMN chapters TEXT NULL DEFAULT NULL
+        ALTER TABLE episode ADD COLUMN subtitle TEXT NULL DEFAULT NULL
         ALTER TABLE episode ADD COLUMN episode_art_url TEXT NULL DEFAULT NULL
         UPDATE podcast SET http_last_modified=NULL, http_etag=NULL
         """),
@@ -180,7 +184,9 @@ def initialize_database(db):
         last_playback INTEGER NOT NULL DEFAULT 0,
         payment_url TEXT NULL DEFAULT NULL,
         description_html TEXT NOT NULL DEFAULT '',
-        episode_art_url TEXT NULL DEFAULT NULL
+        chapters TEXT NULL DEFAULT NULL,
+        subtitle TEXT NULL DEFAULT NULL,
+        episode_art_url TEXT NULL DEFAULT NULL,
     )
     """)
 
@@ -307,6 +313,9 @@ def convert_gpodder2_db(old_db, new_db):
                 0,
                 None,
                 '',
+                None,
+                None,
+                None,
         )
         new_db.execute("""
         INSERT INTO episode VALUES (%s)

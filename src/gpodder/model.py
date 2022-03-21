@@ -372,6 +372,9 @@ class PodcastEpisode(PodcastModelObject):
         self.published = 0
         self.download_filename = None
         self.payment_url = None
+        self.chapters = None
+        self.subtitle = None
+        self.episode_art_url = None
 
         self.state = gpodder.STATE_NORMAL
         self.is_new = True
@@ -808,7 +811,7 @@ class PodcastEpisode(PodcastModelObject):
             return '-'
 
     def update_from(self, episode):
-        for k in ('title', 'url', 'episode_art_url', 'description', 'description_html', 'link', 'published', 'guid', 'payment_url'):
+        for k in ('title', 'url', 'episode_art_url', 'description', 'description_html', 'link', 'published', 'guid', 'payment_url', 'subtitle', 'chapters'):
             setattr(self, k, getattr(episode, k))
         # Don't overwrite file size on downloaded episodes
         # See #648 refreshing a youtube podcast clears downloaded file size
