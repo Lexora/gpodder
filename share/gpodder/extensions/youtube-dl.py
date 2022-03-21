@@ -18,8 +18,7 @@ from youtube_dl.utils import DownloadError, ExtractorError, sanitize_url
 
 import gpodder
 from gpodder import download, feedcore, model, registry, youtube
-from gpodder.util import (mimetype_from_extension, nice_html_description,
-                          remove_html_tags)
+from gpodder.util import mimetype_from_extension, remove_html_tags
 
 _ = gpodder.gettext
 
@@ -210,8 +209,6 @@ class YoutubeFeed(model.Feed):
         episodes = []
         for en in self._ie_result['entries']:
             guid = video_guid(en['id'])
-            description = remove_html_tags(en.get('description') or _('No description available'))
-            html_description = nice_html_description(en.get('thumbnail'), description)
             if en.get('ext'):
                 mime_type = mimetype_from_extension('.{}'.format(en['ext']))
             else:
@@ -224,8 +221,9 @@ class YoutubeFeed(model.Feed):
             ep = {
                 'title': en.get('title', guid),
                 'link': en.get('webpage_url'),
-                'description': description,
-                'description_html': html_description,
+                'episode_art_url': en.get('thumbnail'),
+                'description': remove_html_tags(en.get('description') or ''),
+                'description_html': '',
                 'url': en.get('webpage_url'),
                 'file_size': filesize,
                 'mime_type': mime_type,
